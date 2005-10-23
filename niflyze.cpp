@@ -31,7 +31,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. */
 
-#include "NIFlib/niflib.h"
+#include "niflib.h"
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -53,6 +53,7 @@ using namespace std;
 int main( int argc, char* argv[] );
 bool HasBlockType( vector<blk_ref> blocks, string & block_type );
 void PrintHelpInfo( ostream & out );
+void PrintTree( blk_ref block, int indent, ostream & out );
 
 int main( int argc, char* argv[] ){
 	bool block_match = false;
@@ -136,10 +137,10 @@ int main( int argc, char* argv[] ){
 		}
 	}	
 
-	//// if there are no arguments, show help
-	//if ( argc == 1 ) {
-	//	help_flag = true;
-	//}
+	// if there are no arguments, show help
+	if ( argc == 1 ) {
+		help_flag = true;
+	}
 
 	if ( help_flag == true ) {
 		//Help request intercepted
@@ -181,7 +182,13 @@ int main( int argc, char* argv[] ){
 			cout << "Reading " << current_file << "...";
 
 			vector< blk_ref > blocks;
+			blk_ref root;
 			try {
+				////Show block tree
+				//root = ReadNifTree( current_file );
+				//PrintTree( root, 0, out );
+				//out << endl;
+
 				blocks = ReadNifList( current_file );
 				//blocks.push_back( ReadNifTree( current_file ) );
 
@@ -305,7 +312,7 @@ int main( int argc, char* argv[] ){
 			}
 
 			////Test Write Function
-			//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\TEST.NIF";
+			//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
 			//WriteNifTree( output_nif_file, blocks[0] );
 
 			//Clear out current file
@@ -383,6 +390,24 @@ bool HasBlockType( vector<blk_ref> blocks, string & block_type ) {
 			return true;
 	}
 	return false;
+}
+
+void PrintTree( blk_ref block, int indent, ostream & out ) {
+	//Print indent
+	for (int i = 0; i < indent; ++i) {
+		out << "   ";
+	}
+
+	//Print Block
+	out << "* " << block << endl;
+
+	//Call this function for all children of this block with a higher indent
+	list<blk_ref> links = block->GetLinks();
+	list<blk_ref>::iterator it;
+	for ( it = links.begin(); it != links.end(); ++it ) {
+		if ( (*it)->GetParent() == block )
+			PrintTree( *it, indent + 1, out );
+	}
 }
 
 void PrintHelpInfo( ostream & out ) {
