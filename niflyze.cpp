@@ -169,6 +169,8 @@ int main( int argc, char* argv[] ){
 	// Find files
 	hFind = FindFirstFile(in_file, &FindFileData);
 
+	map<string, vector<string> > versions;
+
 	if (hFind == INVALID_HANDLE_VALUE) {
 		cout << "No files Found." << endl;
 		return 1;
@@ -180,6 +182,33 @@ int main( int argc, char* argv[] ){
 			string current_file = FindFileData.cFileName;
 
 			cout << "Reading " << current_file << "...";
+
+			//--Open File--//
+			ifstream in( current_file.c_str(), ifstream::binary );
+
+			//--Read Header--//
+			
+			char header_string[256];
+			in.getline( header_string, 256 );
+			unsigned int version;
+			in.read( (char*) &version, 4);
+			in.close();
+
+			if ( version < VER_4_0_0_2 || version > VER_10_0_1_0 ) {
+				cout << "Unsupported Version:  " << header_string << endl;
+
+				//--Find Next File--//
+				file_found = FindNextFile(hFind, &FindFileData);
+
+				continue;
+			}
+
+			//versions[header_string].push_back(current_file);
+
+			//out << setw(30) << current_file << ":  " << header_string << endl;
+
+
+			
 
 			vector< blk_ref > blocks;
 			blk_ref root;
@@ -322,7 +351,29 @@ int main( int argc, char* argv[] ){
 			file_found = FindNextFile(hFind, &FindFileData);
 		}
 	}
+
+	////Print out file/version correspondance
+	//map<string, vector<string> >::iterator it;
+	//for (it = versions.begin(); it != versions.end(); ++it ) {
+	//	out << endl
+	//		<< "===[" << it->first << "]===" << endl;
+
+	//	vector<string>::iterator it2;
+	//	for (it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+	//		out << "   " << *it2 << endl;
+	//	}
+
+	//}
 	
+	////Prune list
+	//sort< vector<string>::iterator >(versions.begin(), versions.end());
+	//unique<  vector<string>::iterator  >(versions.begin(), versions.end());
+
+		////Print out list
+	//out << "Versions:" << endl;
+	//for ( unsigned int i = 0; i < versions.size(); ++i ) {
+	//	out << "   " << versions[i] << endl;
+	//}
 
 	////Prune lists
 	//sort(dark_tx.begin(), dark_tx.end());
