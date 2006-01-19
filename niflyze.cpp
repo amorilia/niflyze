@@ -37,8 +37,17 @@ POSSIBILITY OF SUCH DAMAGE. */
 #include <vector>
 #include <algorithm>
 #include <cmath>
+
+// _WIN32 will detect windows on most compilers
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
+#else
+#include <dirent.h>
+#include <regex.h>
+#include <time.h>
+#endif
+
 using namespace std;
 
 #define endl "\r\n"
@@ -51,7 +60,7 @@ using namespace std;
 //vector<string> gloss_tx;
 
 int main( int argc, char* argv[] );
-bool HasBlockType( vector<blk_ref> blocks, string & block_type );
+bool HasBlockType( vector<blk_ref> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
 void PrintTree( blk_ref block, int indent, ostream & out );
 
@@ -148,8 +157,27 @@ int main( int argc, char* argv[] ){
 		return 1;
 	}
 
+#ifdef _WIN32
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
+#else
+	DIR *dir;
+	dirent *pdirent;
+	string pattern(in_file);
+	string tmp;
+	for ( string::const_iterator it = pattern.begin(); it != pattern.end(); it++) {
+		if ( *it == '.' )
+			tmp += "\\.";
+		else if ( *it == '*' )
+			tmp += ".*";
+		else tmp += *it;
+	};
+	pattern = tmp + "$";
+	
+	regex_t regex;
+	if (regcomp(&regex, pattern.c_str(), REG_EXTENDED|REG_NOSUB) == -1)
+		cout << "Failed to compile regular expression." << endl;
+#endif
 
 	//Open output file
 	ofstream out( out_file, ofstream::binary );
@@ -158,29 +186,55 @@ int main( int argc, char* argv[] ){
 	cout.setf(ios::fixed, ios::floatfield);
 	cout << setprecision(2);
 
-	if ( use_start_dir ) {
+#ifdef _WIN32
+	if ( use_start_dir )
 		SetCurrentDirectory(start_dir);
-	}
+#else
+	dir = opendir(start_dir);
+	if (dir == NULL) {
+		cout << "Directory not found." << endl;
+		return -1;
+	};
+#endif
 
 	//Start Timer
+#ifdef _WIN32
 	DWORD start_time = GetTickCount();
+#else
+	clock_t start_time = clock();
+#endif
 	unsigned int count = 0;
-
-	// Find files
-	hFind = FindFirstFile(in_file, &FindFileData);
 
 	map<string, vector<string> > versions;
 
+	// Find files
+#ifdef _WIN32
+	hFind = FindFirstFile(in_file, &FindFileData);
 	if (hFind == INVALID_HANDLE_VALUE) {
-		cout << "No files Found." << endl;
+#else
+	pdirent = readdir(dir);
+	while (pdirent != NULL) {
+		if (strcmp(".", pdirent->d_name) == 0 || strcmp("..", pdirent->d_name) == 0) {
+			pdirent = readdir(dir);
+			continue;
+		};
+		if (regexec(&regex, pdirent->d_name, 0, NULL, 0) == 0) break;
+		pdirent = readdir(dir);
+    };
+	if (pdirent == NULL) {
+#endif
+		cout << "No files found." << endl;
 		return 1;
-	}
-	else {
-		BOOL file_found = TRUE;
-		while (file_found == TRUE) {
-			//--Read NIF File--//
-			string current_file = FindFileData.cFileName;
+	} else {
 
+		bool file_found = true;
+		while (file_found == true) {
+			//--Read NIF File--//
+#ifdef _WIN32
+			string current_file = FindFileData.cFileName;
+#else
+			string current_file = string(start_dir) + "/" + string(pdirent->d_name);
+#endif
 			cout << "Reading " << current_file << "...";
 
 			//--Open File--//
@@ -198,7 +252,16 @@ int main( int argc, char* argv[] ){
 				cout << "Unsupported Version:  " << header_string << endl;
 
 				//--Find Next File--//
+#ifdef _WIN32
 				file_found = FindNextFile(hFind, &FindFileData);
+#else
+				pdirent = readdir(dir);
+				while (pdirent != NULL) {
+					if (regexec(&regex, pdirent->d_name, 0, NULL, 0) == 0) break;
+					pdirent = readdir(dir);
+				};
+				if (pdirent == NULL) file_found = false; else file_found = true;
+#endif
 
 				continue;
 			}
@@ -348,7 +411,16 @@ int main( int argc, char* argv[] ){
 			blocks.clear();
 
 			//--Find Next File--//
+#ifdef _WIN32
 			file_found = FindNextFile(hFind, &FindFileData);
+#else
+			pdirent = readdir(dir);
+			while (pdirent != NULL) {
+				if (regexec(&regex, pdirent->d_name, 0, NULL, 0) == 0) break;
+				pdirent = readdir(dir);
+			};
+			if (pdirent == NULL) file_found = false; else file_found = true;
+#endif
 		}
 	}
 
@@ -428,14 +500,20 @@ int main( int argc, char* argv[] ){
 	out.close();
 
 	cout << "Done!" << endl;
+#ifdef _WIN32
 	DWORD end_time = GetTickCount();
 	float time_taken = float(end_time - start_time) / 1000.0f;
+#else
+	closedir(dir);
+	clock_t end_time = clock();
+	float time_taken = float(end_time - start_time) / CLOCKS_PER_SEC;
+#endif
 	cout << count << " files analyzed." << endl
 		 << "Total processing time:  " << time_taken << " seconds" << endl; 
 	return 1;
 }
 
-bool HasBlockType( vector<blk_ref> blocks, string & block_type ) {
+bool HasBlockType( vector<blk_ref> blocks, string const & block_type ) {
 	for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 		if ( blocks[i]->GetBlockType() == block_type )
 			return true;
