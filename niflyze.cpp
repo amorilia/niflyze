@@ -235,8 +235,6 @@ int main( int argc, char* argv[] ){
 #else
 			string current_file = string(start_dir) + "/" + string(pdirent->d_name);
 #endif
-			cout << "Reading " << current_file << "...";
-
 			//--Open File--//
 			ifstream in( current_file.c_str(), ifstream::binary );
 
@@ -248,12 +246,17 @@ int main( int argc, char* argv[] ){
 			in.read( (char*) &version, 4);
 			in.close();
 
-			if ( version < VER_4_0_0_2 || version > VER_10_0_1_0 ) {
-				cout << "Unsupported Version:  " << header_string << endl;
+			char * byte_ver = (char*)&version;
+			int int_ver[4] = { byte_ver[3], byte_ver[2], byte_ver[1], byte_ver[0] };
+
+			cout << "Reading "  << current_file << " (v" << int_ver[0] << "." << int_ver[1] << "." << int_ver[2] << "." << int_ver[3] << ")...";
+
+			if ( version < VER_4_0_0_2 || version > VER_10_2_0_0 ) {
+				cout << "UNSUPPORTED:  " << header_string << endl;
 
 				//--Find Next File--//
 #ifdef _WIN32
-				file_found = FindNextFile(hFind, &FindFileData);
+				file_found = ( FindNextFile(hFind, &FindFileData) != 0 );
 #else
 				pdirent = readdir(dir);
 				while (pdirent != NULL) {
@@ -265,6 +268,8 @@ int main( int argc, char* argv[] ){
 
 				continue;
 			}
+
+			
 
 			//versions[header_string].push_back(current_file);
 
@@ -288,27 +293,27 @@ int main( int argc, char* argv[] ){
 				////Add files to the lists if they have that specific type of texture
 				//for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 				//	if ( blocks[i]->GetBlockType() == "NiTexturingProperty" ) {
-				//		//if ( blocks[i]->GetAttr("Dark Texture")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Dark Texture")->asTexDesc().isUsed == true ) {
 				//		//	dark_tx.push_back( current_file );
 				//		//}
-				//		//if ( blocks[i]->GetAttr("Detail Texture")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Detail Texture")->asTexDesc().isUsed == true ) {
 				//		//	detail_tx.push_back( current_file );
 				//		//}
-				//		//if ( blocks[i]->GetAttr("Decal Texture")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Decal Texture")->asTexDesc().isUsed == true ) {
 				//		//	decal_tx.push_back( current_file );
 				//		//}
-				//		//if ( blocks[i]->GetAttr("Decal Texture 2")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Decal Texture 2")->asTexDesc().isUsed == true ) {
 				//		//	decal2_tx.push_back( current_file );
 				//		//}
-				//		//if ( blocks[i]->GetAttr("Glow Texture")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Glow Texture")->asTexDesc().isUsed == true ) {
 				//		//	glow_tx.push_back( current_file );
 				//		//}
-				//		//if ( blocks[i]->GetAttr("Gloss Texture")->asTexture().isUsed == true ) {
+				//		//if ( blocks[i]->GetAttr("Gloss Texture")->asTexDesc().isUsed == true ) {
 				//		//	gloss_tx.push_back( current_file );
 				//		//}
 
 				//		//Try to copy the base texture to another slot
-				//Texture t = blocks[i]["Base Texture"]->asTexture();
+				//Texture t = blocks[i]["Base Texture"]->asTexDesc();
 				//		float pi = 3.141592653589793f;
 				//		float angle = 0.25f * pi;
 				//		
@@ -365,9 +370,6 @@ int main( int argc, char* argv[] ){
 
 				//}
 
-				blocks = ReadNifList( current_file );
-				//blocks.push_back( ReadNifTree( current_file ) );
-
 				//Increment file count
 				count++;
 
@@ -377,10 +379,24 @@ int main( int argc, char* argv[] ){
 					if (exclusive_mode) {
 						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 						if ( blocks[i]->GetBlockType() == string(block_match_string) ) {
-							out << "====[ " << current_file << " | Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
+							out << "====[ " << current_file << " |  " << " Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
 								<< blocks[i]->asString()
 								<< endl;
 						}
+
+						//IPixelData * pix_data = (IPixelData*)blocks[i]->QueryInterface( ID_PIXEL_DATA );
+						//if ( pix_data != NULL ) {
+						//	PixelFormat pf = pix_data->GetPixelFormat();
+						//	if ( pf == PX_FMT_RGB8 || pf == PX_FMT_RGBA8 ) {
+						//		cout << endl << "Texture found:  " << pix_data->GetWidth() << "x" << pix_data->GetHeight() << endl;
+						//		vector<Color4> colors = pix_data->GetColors();
+						//		cout << "Sending colors back to NiPixelData block." << endl;
+						//		pix_data->SetColors( colors, true );
+						//		cout << "Displaying NiPixelData block." << endl;
+						//		cout << blocks[i]->asString();
+						//		cin.get();
+						//	}
+						//}
 					}
 					} else {
 						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
@@ -404,15 +420,17 @@ int main( int argc, char* argv[] ){
 			}
 
 			////Test Write Function
+			//cout << endl << "Writing Nif File" << endl;
 			//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
-			//WriteNifTree( output_nif_file, blocks[0] );
+			//WriteNifTree( output_nif_file, blocks[0], VER_10_0_1_0 );
+			//cin.get();
 
 			//Clear out current file
 			blocks.clear();
 
 			//--Find Next File--//
 #ifdef _WIN32
-			file_found = FindNextFile(hFind, &FindFileData);
+			file_found = ( FindNextFile(hFind, &FindFileData) != 0 );
 #else
 			pdirent = readdir(dir);
 			while (pdirent != NULL) {
