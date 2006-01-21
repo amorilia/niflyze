@@ -141,10 +141,6 @@ for current_file in files:
 
     print "done"
 
-    #Clear out current file
-    for block in blocks:
-        block.ClearLinks()
-
 #Close output file
 out.close()
 
