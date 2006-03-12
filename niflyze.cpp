@@ -238,8 +238,10 @@ int main( int argc, char* argv[] ){
 			//--Open File--//
 			ifstream in( current_file.c_str(), ifstream::binary );
 
+			cout << "Reading "  << current_file << "...";
+
 			//--Read Header--//
-			
+			/* MOVED TO NIFLIB
 			char header_string[256];
 			in.getline( header_string, 256 );
 			unsigned int version;
@@ -248,8 +250,6 @@ int main( int argc, char* argv[] ){
 
 			char * byte_ver = (char*)&version;
 			int int_ver[4] = { byte_ver[3], byte_ver[2], byte_ver[1], byte_ver[0] };
-
-			cout << "Reading "  << current_file << " (v" << int_ver[0] << "." << int_ver[1] << "." << int_ver[2] << "." << int_ver[3] << ")...";
 
 			if ( version < VER_4_0_0_2 || version > VER_10_2_0_0 ) {
 				cout << "UNSUPPORTED:  " << header_string << endl;
@@ -268,7 +268,7 @@ int main( int argc, char* argv[] ){
 
 				continue;
 			}
-
+			*/
 			
 
 			//versions[header_string].push_back(current_file);
@@ -287,7 +287,7 @@ int main( int argc, char* argv[] ){
 				//out << endl;
 
 				blocks = ReadNifList( current_file );
-				//blocks.push_back( ReadNifTree( current_file ) );
+ 				//blocks.push_back( ReadNifTree( current_file ) );
 
 
 				////Add files to the lists if they have that specific type of texture
@@ -411,11 +411,12 @@ int main( int argc, char* argv[] ){
 			}
 			catch( exception & e ) {
 				cout << "Error: " << e.what() << endl;
-				cout << "\a";
-				return 0;
+				// skip unsupported formats, but bail out on other errors
+				if ( string(e.what()).substr(0,45) != "Unsupported: NetImmerse File Format, Version " )
+					return 0;
 			}
 			catch( ... ) {
-				cout << "\nUnknown Exception." << endl;
+				cout << endl << "Unknown Exception." << endl;
 				return 0;
 			}
 

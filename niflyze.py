@@ -1,10 +1,29 @@
 #Niflyze - Python Version
 
+from __future__ import generators
+
 from niflib import *
 import os
 import glob
 import sys
+import stat
 
+# the walktree function is from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/200131
+def walktree(top = ".", depthfirst = True):
+    """Walk the directory tree, starting from top. Credit to Noah Spurrier and Doug Fort."""
+    names = os.listdir(top)
+    if not depthfirst:
+        yield top, names
+    for name in names:
+        try:
+            st = os.lstat(os.path.join(top, name))
+        except os.error:
+            continue
+        if stat.S_ISDIR(st.st_mode):
+            for (newtop, children) in walktree (os.path.join(top, name), depthfirst):
+                yield newtop, children
+    if depthfirst:
+        yield top, names
 def PrintHelpInfo():
     print """Usage:  niflyze -switch_1 value_1 -switch_2 value_2 ... switch_n value_n
 Example:  niflyze -i model.nif -o output.txt
@@ -27,7 +46,7 @@ Switches:
    Specifies the directory to search for files matching the input file name.
    If no path is specified, the present directory is searched.  Don't specify
    a path in the in file or the read will fail.
-   Example:  -p "C:\Program Files\"
+   Example:  -p 'C:\Program Files\'
 
 -b [Block Match]
    Causes niflyze to output information only for files which contain the
@@ -106,40 +125,36 @@ if help_flag == True or len(sys.argv) <= 1:
 #Open output file
 out = open(out_file, 'w')
 
-#Find files that match the criteria
-os.chdir( start_dir)
-files = glob.glob( in_file )
-
-#if no files were found, print a message and quit
-if len(files) == 0:
-    print "No files found."
-    exit
-
 #Cycle through files
-for current_file in files:
-    print "Reading", current_file + "...",
+for top, names in walktree( start_dir ):
+    #Find files that match the criteria
+    os.chdir( top )
+    files = glob.glob( in_file )
+    
+    for current_file in files:
+        print "Reading", top + os.sep + current_file + "...",
 
-    blocks = ReadNifList( current_file )
+        blocks = ReadNifList( current_file )
+  
+        #If in any match mode, check the file for the block type
+        #in case it can be skipped
+        if block_match == True and HasBlockType(blocks, blk_match_str) == False:
+            #this file doesn't have any matching blocks, skip it
+            continue
 
-    #If in any match mode, check the file for the block type
-    #in case it can be skipped
-    if block_match == True and HasBlockType(blocks, blk_match_str) == False:
-        #this file doesn't have any matching blocks, skip it
-        continue
+        print "writing...",
 
-    print "writing...",
-
-    #Cycle through the blocks, writing each one
-    for block in blocks:
-        #In exclusive block match mode, only write the block if it's type matches
-        #Otherwise, write all blocks
-        if exclusive_mode == True:
-            if block.GetBlockType() == blk_match_str:
+        #Cycle through the blocks, writing each one
+        for block in blocks:
+            #In exclusive block match mode, only write the block if it's type matches
+            #Otherwise, write all blocks
+            if exclusive_mode == True:
+                if block.GetBlockType() == blk_match_str:
+                    out.write( PrintBlock(block, current_file) )
+            else:
                 out.write( PrintBlock(block, current_file) )
-        else:
-            out.write( PrintBlock(block, current_file) )
 
-    print "done"
+        print "done"
 
 #Close output file
 out.close()
