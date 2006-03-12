@@ -286,134 +286,136 @@ int main( int argc, char* argv[] ){
 				//PrintTree( root, 0, out );
 				//out << endl;
 
-				blocks = ReadNifList( current_file );
- 				//blocks.push_back( ReadNifTree( current_file ) );
-
-
-				////Add files to the lists if they have that specific type of texture
-				//for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-				//	if ( blocks[i]->GetBlockType() == "NiTexturingProperty" ) {
-				//		//if ( blocks[i]->GetAttr("Dark Texture")->asTexDesc().isUsed == true ) {
-				//		//	dark_tx.push_back( current_file );
-				//		//}
-				//		//if ( blocks[i]->GetAttr("Detail Texture")->asTexDesc().isUsed == true ) {
-				//		//	detail_tx.push_back( current_file );
-				//		//}
-				//		//if ( blocks[i]->GetAttr("Decal Texture")->asTexDesc().isUsed == true ) {
-				//		//	decal_tx.push_back( current_file );
-				//		//}
-				//		//if ( blocks[i]->GetAttr("Decal Texture 2")->asTexDesc().isUsed == true ) {
-				//		//	decal2_tx.push_back( current_file );
-				//		//}
-				//		//if ( blocks[i]->GetAttr("Glow Texture")->asTexDesc().isUsed == true ) {
-				//		//	glow_tx.push_back( current_file );
-				//		//}
-				//		//if ( blocks[i]->GetAttr("Gloss Texture")->asTexDesc().isUsed == true ) {
-				//		//	gloss_tx.push_back( current_file );
-				//		//}
-
-				//		//Try to copy the base texture to another slot
-				//Texture t = blocks[i]["Base Texture"]->asTexDesc();
-				//		float pi = 3.141592653589793f;
-				//		float angle = 0.25f * pi;
-				//		
-				//		t.bmLumaOffset = 45.0f;
-				//		t.bmLumaScale = 45.0f;
-				//		t.bmMatrix[0][0] = cos(angle);		t.bmMatrix[0][1] = -sin(angle);
-				//		t.bmMatrix[1][0] = sin(angle);		t.bmMatrix[1][1] = cos(angle);
-				//		blocks[i]["Broken Texture?"]->Set(t);
-
-				//		//Create a texture source for the alpha block
-				//		blk_ref src_prop = CreateBlock( "NiSourceTexture" );
-				//		TextureSource ts;
-				//		ts.useExternal = true;
-				//		ts.fileName = "snowwallbump.tga";
-				//		ts.unknownByte = 0;
-				//		src_prop["Texture Source"]->Set(ts);
-				//		src_prop["Pixel Layout"]->Set(4);
-				//		src_prop["Use Mipmaps"]->Set(0);
-				//		src_prop["Alpha Format"]->Set(0);
-				//		src_prop["Unknown Byte"]->Set(1);
-				//		blk_link l;
-				//		l.attr = blocks[i]["Broken Texture?"];
-				//		l.block = src_prop;
-				//		blocks[i]->AddLink( l );
-				//		
-				//		//t.isUsed = false;
-				//		//blocks[i]->GetAttr("Base Texture")->Set(t);
-
-				//		//blk_link l = blocks[i]->GetLink( blocks[i]->GetAttr("Base Texture") );
-				//		//l.attr = blocks[i]->GetAttr("Broken Texture?");
-				//		//blocks[i]->AddLink( l );
-				//	}
-				//	//if ( blocks[i]->GetBlockType() == "NiSourceTexture" ) {
-				//	//	blocks[i]->GetAttr("Pixel Layout")->Set(4);
-				//	//}
-				//	if ( blocks[i]->GetBlockType() == "NiMaterialProperty" ) {
-				//		blocks[i]["Specular Color"]->Set( 1.0f, 1.0f, 1.0f );
-				//		blocks[i]["Glossiness"]->Set( 20.0f );
-				//	}
-				//	if ( blocks[i]->GetBlockType() == "NiTriShape" ) {
-				//		blk_ref spec_prop = CreateBlock( "NiSpecularProperty" );
-				//		spec_prop["Flags"]->Set(1);
-				//		blk_link l;
-				//		l.attr = blocks[i]["Properties"];
-				//		l.block = spec_prop;
-				//		blocks[i]->AddLink( l );
-
-				//		blk_ref render_prop = CreateBlock( "NiRendererSpecificProperty" );
-				//		render_prop["Flags"]->Set(int(0xFFFFFFFF));
-				//		l.attr = blocks[i]["Properties"];
-				//		l.block = render_prop;
-				//		blocks[i]->AddLink( l );
-				//	}
-
-				//}
-
-				//Increment file count
-				count++;
-
-				//--Output Analysis--//
-				if ( !block_match || HasBlockType( blocks, string(block_match_string) ) ) {
-					cout << "writing...";
-					if (exclusive_mode) {
-						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-						if ( blocks[i]->GetBlockType() == string(block_match_string) ) {
-							out << "====[ " << current_file << " |  " << " Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
-								<< blocks[i]->asString()
-								<< endl;
+				unsigned int ver = CheckNifHeader( current_file );
+				if ( ver == VER_UNSUPPORTED ) cout << "unsupported...";
+				else if ( ver == VER_INVALID ) cout << "invalid...";
+				else {
+					blocks = ReadNifList( current_file );
+ 					//blocks.push_back( ReadNifTree( current_file ) );
+	
+	
+					////Add files to the lists if they have that specific type of texture
+					//for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+					//	if ( blocks[i]->GetBlockType() == "NiTexturingProperty" ) {
+					//		//if ( blocks[i]->GetAttr("Dark Texture")->asTexDesc().isUsed == true ) {
+					//		//	dark_tx.push_back( current_file );
+					//		//}
+					//		//if ( blocks[i]->GetAttr("Detail Texture")->asTexDesc().isUsed == true ) {
+					//		//	detail_tx.push_back( current_file );
+					//		//}
+					//		//if ( blocks[i]->GetAttr("Decal Texture")->asTexDesc().isUsed == true ) {
+					//		//	decal_tx.push_back( current_file );
+					//		//}
+					//		//if ( blocks[i]->GetAttr("Decal Texture 2")->asTexDesc().isUsed == true ) {
+					//		//	decal2_tx.push_back( current_file );
+					//		//}
+					//		//if ( blocks[i]->GetAttr("Glow Texture")->asTexDesc().isUsed == true ) {
+					//		//	glow_tx.push_back( current_file );
+					//		//}
+					//		//if ( blocks[i]->GetAttr("Gloss Texture")->asTexDesc().isUsed == true ) {
+					//		//	gloss_tx.push_back( current_file );
+					//		//}
+	
+					//		//Try to copy the base texture to another slot
+					//Texture t = blocks[i]["Base Texture"]->asTexDesc();
+					//		float pi = 3.141592653589793f;
+					//		float angle = 0.25f * pi;
+					//		
+					//		t.bmLumaOffset = 45.0f;
+					//		t.bmLumaScale = 45.0f;
+					//		t.bmMatrix[0][0] = cos(angle);		t.bmMatrix[0][1] = -sin(angle);
+					//		t.bmMatrix[1][0] = sin(angle);		t.bmMatrix[1][1] = cos(angle);
+					//		blocks[i]["Broken Texture?"]->Set(t);
+	
+					//		//Create a texture source for the alpha block
+					//		blk_ref src_prop = CreateBlock( "NiSourceTexture" );
+					//		TextureSource ts;
+					//		ts.useExternal = true;
+					//		ts.fileName = "snowwallbump.tga";
+					//		ts.unknownByte = 0;
+					//		src_prop["Texture Source"]->Set(ts);
+					//		src_prop["Pixel Layout"]->Set(4);
+					//		src_prop["Use Mipmaps"]->Set(0);
+					//		src_prop["Alpha Format"]->Set(0);
+					//		src_prop["Unknown Byte"]->Set(1);
+					//		blk_link l;
+					//		l.attr = blocks[i]["Broken Texture?"];
+					//		l.block = src_prop;
+					//		blocks[i]->AddLink( l );
+					//		
+					//		//t.isUsed = false;
+					//		//blocks[i]->GetAttr("Base Texture")->Set(t);
+	
+					//		//blk_link l = blocks[i]->GetLink( blocks[i]->GetAttr("Base Texture") );
+					//		//l.attr = blocks[i]->GetAttr("Broken Texture?");
+					//		//blocks[i]->AddLink( l );
+					//	}
+					//	//if ( blocks[i]->GetBlockType() == "NiSourceTexture" ) {
+					//	//	blocks[i]->GetAttr("Pixel Layout")->Set(4);
+					//	//}
+					//	if ( blocks[i]->GetBlockType() == "NiMaterialProperty" ) {
+					//		blocks[i]["Specular Color"]->Set( 1.0f, 1.0f, 1.0f );
+					//		blocks[i]["Glossiness"]->Set( 20.0f );
+					//	}
+					//	if ( blocks[i]->GetBlockType() == "NiTriShape" ) {
+					//		blk_ref spec_prop = CreateBlock( "NiSpecularProperty" );
+					//		spec_prop["Flags"]->Set(1);
+					//		blk_link l;
+					//		l.attr = blocks[i]["Properties"];
+					//		l.block = spec_prop;
+					//		blocks[i]->AddLink( l );
+	
+					//		blk_ref render_prop = CreateBlock( "NiRendererSpecificProperty" );
+					//		render_prop["Flags"]->Set(int(0xFFFFFFFF));
+					//		l.attr = blocks[i]["Properties"];
+					//		l.block = render_prop;
+					//		blocks[i]->AddLink( l );
+					//	}
+	
+					//}
+	
+					//Increment file count
+					count++;
+	
+					//--Output Analysis--//
+					if ( !block_match || HasBlockType( blocks, string(block_match_string) ) ) {
+						cout << "writing...";
+						if (exclusive_mode) {
+							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+							if ( blocks[i]->GetBlockType() == string(block_match_string) ) {
+								out << "====[ " << current_file << " |  " << " Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
+									<< blocks[i]->asString()
+									<< endl;
+							}
+	
+							//IPixelData * pix_data = (IPixelData*)blocks[i]->QueryInterface( ID_PIXEL_DATA );
+							//if ( pix_data != NULL ) {
+							//	PixelFormat pf = pix_data->GetPixelFormat();
+							//	if ( pf == PX_FMT_RGB8 || pf == PX_FMT_RGBA8 ) {
+							//		cout << endl << "Texture found:  " << pix_data->GetWidth() << "x" << pix_data->GetHeight() << endl;
+							//		vector<Color4> colors = pix_data->GetColors();
+							//		cout << "Sending colors back to NiPixelData block." << endl;
+							//		pix_data->SetColors( colors, true );
+							//		cout << "Displaying NiPixelData block." << endl;
+							//		cout << blocks[i]->asString();
+							//		cin.get();
+							//	}
+							//}
 						}
-
-						//IPixelData * pix_data = (IPixelData*)blocks[i]->QueryInterface( ID_PIXEL_DATA );
-						//if ( pix_data != NULL ) {
-						//	PixelFormat pf = pix_data->GetPixelFormat();
-						//	if ( pf == PX_FMT_RGB8 || pf == PX_FMT_RGBA8 ) {
-						//		cout << endl << "Texture found:  " << pix_data->GetWidth() << "x" << pix_data->GetHeight() << endl;
-						//		vector<Color4> colors = pix_data->GetColors();
-						//		cout << "Sending colors back to NiPixelData block." << endl;
-						//		pix_data->SetColors( colors, true );
-						//		cout << "Displaying NiPixelData block." << endl;
-						//		cout << blocks[i]->asString();
-						//		cin.get();
-						//	}
-						//}
-					}
-					} else {
-						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-							out << "====[ " << current_file << " | Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
-								<< blocks[i]->asString()
-								<< endl;
+						} else {
+							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+								out << "====[ " << current_file << " | Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
+									<< blocks[i]->asString()
+									<< endl;
+							}
 						}
 					}
-				}
-
+				};
 				cout << "done" << endl;
 			}
 			catch( exception & e ) {
 				cout << "Error: " << e.what() << endl;
-				// skip unsupported formats, but bail out on other errors
-				if ( string(e.what()).substr(0,45) != "Unsupported: NetImmerse File Format, Version " )
-					return 0;
+				return 0;
 			}
 			catch( ... ) {
 				cout << endl << "Unknown Exception." << endl;
