@@ -134,27 +134,33 @@ for top, names in walktree( start_dir ):
     for current_file in files:
         print "Reading", top + os.sep + current_file + "...",
 
-        blocks = ReadNifList( current_file )
-  
-        #If in any match mode, check the file for the block type
-        #in case it can be skipped
-        if block_match == True and HasBlockType(blocks, blk_match_str) == False:
-            #this file doesn't have any matching blocks, skip it
-            continue
-
-        print "writing...",
-
-        #Cycle through the blocks, writing each one
-        for block in blocks:
-            #In exclusive block match mode, only write the block if it's type matches
-            #Otherwise, write all blocks
-            if exclusive_mode == True:
-                if block.GetBlockType() == blk_match_str:
+        ver = CheckNifHeader( current_file )
+        if ( ver == VER_UNSUPPORTED ):
+            print "unsupported"
+        elif ( ver == VER_INVALID ):
+            print "invalid"
+        else:
+            blocks = ReadNifList( current_file )
+            
+            #If in any match mode, check the file for the block type
+            #in case it can be skipped
+            if block_match == True and HasBlockType(blocks, blk_match_str) == False:
+                #this file doesn't have any matching blocks, skip it
+                continue
+            
+            print "writing...",
+            
+            #Cycle through the blocks, writing each one
+            for block in blocks:
+                #In exclusive block match mode, only write the block if it's type matches
+                #Otherwise, write all blocks
+                if exclusive_mode == True:
+                    if block.GetBlockType() == blk_match_str:
+                        out.write( PrintBlock(block, current_file) )
+                else:
                     out.write( PrintBlock(block, current_file) )
-            else:
-                out.write( PrintBlock(block, current_file) )
 
-        print "done"
+            print "done"
 
 #Close output file
 out.close()
