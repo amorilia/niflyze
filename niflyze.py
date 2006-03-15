@@ -101,7 +101,8 @@ for i in sys.argv:
         start_dir = i
     elif prev == "-b":
         # block match
-        block_match = i
+        block_match = True
+        blk_match_str = i
 
     #Evaluate flags that don't have arguments
     if i == "-v":
