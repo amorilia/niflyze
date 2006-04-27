@@ -428,6 +428,14 @@ int main( int argc, char* argv[] ){
 			//WriteNifTree( output_nif_file, blocks[0], VER_10_0_1_0 );
 			//cin.get();
 
+			////Test Clone Function
+			//cout << "==[Original Block]==" << endl << endl
+			//	 << blocks[0]->asString() << endl;
+			//blk_ref clone = blocks[0]->Clone();
+			//cout << "==[Cloned Block]==" << endl << endl
+			//	 << clone->asString() << endl;
+			//clone = blk_ref();
+
 			//Clear out current file
 			blocks.clear();
 
