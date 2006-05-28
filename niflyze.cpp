@@ -32,6 +32,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE. */
 
 #include "niflib.h"
+#include "obj/NiObject.h"
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -60,7 +61,7 @@ using namespace std;
 //vector<string> gloss_tx;
 
 int main( int argc, char* argv[] );
-bool HasBlockType( vector<blk_ref> blocks, string const & block_type );
+bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
 void PrintTree( blk_ref block, int indent, ostream & out );
 
@@ -68,6 +69,7 @@ int main( int argc, char* argv[] ){
 	bool block_match = false;
 	bool exclusive_mode = false;
 	bool use_start_dir = false;
+	bool verbose = false;
 	char * block_match_string = "";
 	char * in_file = "*.nif";  //C_Templar_M_G_skirt
 	char * out_file = "niflyze.txt";
@@ -131,8 +133,7 @@ int main( int argc, char* argv[] ){
 
 		// Verbose mode
 		if ( strcmp(argv[i], "-v") == 0  ) {
-			
-			SetVerboseMode(true);
+			verbose = true;
 		}
 
 		// Exclusive mode
@@ -278,8 +279,8 @@ int main( int argc, char* argv[] ){
 
 			
 
-			vector< blk_ref > blocks;
-			blk_ref root;
+			vector< NiObjectRef > blocks;
+			NiObjectRef root;
 			try {
 				////Show block tree
 				//root = ReadNifTree( current_file );
@@ -382,9 +383,9 @@ int main( int argc, char* argv[] ){
 						cout << "writing...";
 						if (exclusive_mode) {
 							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-							if ( blocks[i]->GetBlockType() == string(block_match_string) ) {
-								out << "====[ " << current_file << " |  " << " Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
-									<< blocks[i]->asString()
+							if ( blocks[i]->GetType().GetTypeName() == string(block_match_string) ) {
+								out << "====[ " << current_file << " |  " << " Block " << i << " | " << blocks[i]->GetType().GetTypeName() << " ]====" << endl
+									<< blocks[i]->asString( verbose )
 									<< endl;
 							}
 	
@@ -404,8 +405,8 @@ int main( int argc, char* argv[] ){
 						}
 						} else {
 							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-								out << "====[ " << current_file << " | Block " << blocks[i].get_index() << " | " << blocks[i]->GetBlockType() << " ]====" << endl
-									<< blocks[i]->asString()
+								out << "====[ " << current_file << " | Block " << i << " | " << blocks[i]->GetType().GetTypeName() << " ]====" << endl
+									<< blocks[i]->asString( verbose )
 									<< endl;
 							}
 						}
@@ -544,13 +545,13 @@ int main( int argc, char* argv[] ){
 
 bool HasBlockType( vector<blk_ref> blocks, string const & block_type ) {
 	for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-		if ( blocks[i]->GetBlockType() == block_type )
+		if ( blocks[i]->GetType().GetTypeName() == block_type )
 			return true;
 	}
 	return false;
 }
 
-void PrintTree( blk_ref block, int indent, ostream & out ) {
+void PrintTree( NiObjectRef block, int indent, ostream & out ) {
 	//Print indent
 	for (int i = 0; i < indent; ++i) {
 		out << "   ";
@@ -560,11 +561,11 @@ void PrintTree( blk_ref block, int indent, ostream & out ) {
 	out << "* " << block << endl;
 
 	//Call this function for all children of this block with a higher indent
-	list<blk_ref> links = block->GetLinks();
-	list<blk_ref>::iterator it;
+	list<NiObjectRef> links = block->GetLinks();
+	list<NiObjectRef>::iterator it;
 	for ( it = links.begin(); it != links.end(); ++it ) {
-		if ( (*it)->GetParent() == block )
-			PrintTree( *it, indent + 1, out );
+		//if ( (*it)->GetParent() == block )
+		PrintTree( *it, indent + 1, out );
 	}
 }
 
