@@ -15,7 +15,7 @@ Niflib is assumed to have been built in '%s'.
 
 # detect platform
 if sys.platform == 'linux2' or sys.platform == 'linux-i386':
-    cppflags = '-fPIC -Wall'
+    cppflags = '-fPIC -Wall -ggdb'
 elif sys.platform == 'cygwin':
     cppflags = '-Wall'
 elif sys.platform == 'win32':
