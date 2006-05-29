@@ -73,7 +73,7 @@ int main( int argc, char* argv[] ){
 	char * block_match_string = "";
 	char * in_file = "*.nif";  //C_Templar_M_G_skirt
 	char * out_file = "niflyze.txt";
-	char * start_dir = "";
+	char * start_dir = ".";
 
 	////Temporary//
 	//start_dir = "C:\\Documents and Settings\\Shon\\My Documents\\Modding\\Morrowind\\Official Nifs";
@@ -148,9 +148,9 @@ int main( int argc, char* argv[] ){
 	}	
 
 	// if there are no arguments, show help
-	if ( argc == 1 ) {
-		help_flag = true;
-	}
+	//if ( argc == 1 ) {
+	//	help_flag = true;
+	//}
 
 	if ( help_flag == true ) {
 		//Help request intercepted
