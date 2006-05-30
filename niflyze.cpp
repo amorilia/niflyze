@@ -51,15 +51,6 @@ POSSIBILITY OF SUCH DAMAGE. */
 
 using namespace std;
 
-#define endl "\r\n"
-
-//vector<string> dark_tx;
-//vector<string> detail_tx;
-//vector<string> decal_tx;
-//vector<string> decal2_tx;
-//vector<string> glow_tx;
-//vector<string> gloss_tx;
-
 int main( int argc, char* argv[] );
 bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
