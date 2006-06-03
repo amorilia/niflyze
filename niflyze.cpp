@@ -375,7 +375,7 @@ int main( int argc, char* argv[] ){
 						if (exclusive_mode) {
 							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 							if ( blocks[i]->GetType().GetTypeName() == string(block_match_string) ) {
-								out << "====[ " << current_file << " |  " << " Block " << i << " | " << blocks[i]->GetType().GetTypeName() << " ]====" << endl
+								out << "====[ " << current_file << " | " << &(*blocks[i]) << "(" << blocks[i]->GetType().GetTypeName() << ") ]====" << endl
 									<< blocks[i]->asString( verbose )
 									<< endl;
 							}
@@ -396,7 +396,7 @@ int main( int argc, char* argv[] ){
 						}
 						} else {
 							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-								out << "====[ " << current_file << " | Block " << i << " | " << blocks[i]->GetType().GetTypeName() << " ]====" << endl
+								out << "====[ " << current_file << " | " << &(*blocks[i]) << "(" << blocks[i]->GetType().GetTypeName() << ") ]====" << endl
 									<< blocks[i]->asString( verbose )
 									<< endl;
 							}
