@@ -552,7 +552,7 @@ void PrintTree( NiObjectRef block, int indent, ostream & out ) {
 	out << "* " << block << endl;
 
 	//Call this function for all children of this block with a higher indent
-	list<NiObjectRef> links = block->GetLinks();
+	list<NiObjectRef> links = block->GetRefs();
 	list<NiObjectRef>::iterator it;
 	for ( it = links.begin(); it != links.end(); ++it ) {
 		//if ( (*it)->GetParent() == block )
