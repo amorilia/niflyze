@@ -39,6 +39,8 @@ POSSIBILITY OF SUCH DAMAGE. */
 #include <algorithm>
 #include <cmath>
 
+//#define TEST_WRITE
+
 // _WIN32 will detect windows on most compilers
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -232,53 +234,16 @@ int main( int argc, char* argv[] ){
 
 			cout << "Reading "  << current_file << "...";
 
-			//--Read Header--//
-			/* MOVED TO NIFLIB
-			char header_string[256];
-			in.getline( header_string, 256 );
-			unsigned int version;
-			in.read( (char*) &version, 4);
-			in.close();
-
-			char * byte_ver = (char*)&version;
-			int int_ver[4] = { byte_ver[3], byte_ver[2], byte_ver[1], byte_ver[0] };
-
-			if ( version < VER_4_0_0_2 || version > VER_10_2_0_0 ) {
-				cout << "UNSUPPORTED:  " << header_string << endl;
-
-				//--Find Next File--//
-#ifdef _WIN32
-				file_found = ( FindNextFile(hFind, &FindFileData) != 0 );
-#else
-				pdirent = readdir(dir);
-				while (pdirent != NULL) {
-					if (regexec(&regex, pdirent->d_name, 0, NULL, 0) == 0) break;
-					pdirent = readdir(dir);
-				};
-				if (pdirent == NULL) file_found = false; else file_found = true;
-#endif
-
-				continue;
-			}
-			*/
-			
-
-			//versions[header_string].push_back(current_file);
-
-			//out << setw(30) << current_file << ":  " << header_string << endl;
-
-
-			
-
 			vector< NiObjectRef > blocks;
 			NiObjectRef root;
+                        unsigned int ver;
 			try {
 				////Show block tree
 				//root = ReadNifTree( current_file );
 				//PrintTree( root, 0, out );
 				//out << endl;
 
-				unsigned int ver = CheckNifHeader( current_file );
+				ver = CheckNifHeader( current_file );
 				if ( ver == VER_UNSUPPORTED ) cout << "unsupported...";
 				else if ( ver == VER_INVALID ) cout << "invalid...";
 				else {
@@ -414,11 +379,20 @@ int main( int argc, char* argv[] ){
 				return 0;
 			}
 
+#ifdef TEST_WRITE
 			////Test Write Function
-			//cout << endl << "Writing Nif File" << endl;
+			cout << endl << "Writing Nif File" << endl;
 			//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
-			//WriteNifTree( output_nif_file, blocks[0], VER_10_0_1_0 );
-			//cin.get();
+			string output_nif_file = "/tmp/TEST.NIF";
+			WriteNifTree( output_nif_file, blocks[0], ver );
+			blocks = ReadNifList( output_nif_file );
+			for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+				out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
+					<< blocks[i]->asString( verbose )
+					<< endl;
+			};
+			cin.get();
+#endif
 
 			////Test Clone Function
 			//cout << "==[Original Block]==" << endl << endl
