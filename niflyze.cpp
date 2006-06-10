@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE. */
 #include <algorithm>
 #include <cmath>
 
+//#define USE_NIFLIB_DLL
 //#define TEST_WRITE
 
 // _WIN32 will detect windows on most compilers
