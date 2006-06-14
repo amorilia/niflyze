@@ -64,6 +64,7 @@ int main( int argc, char* argv[] ){
 	bool exclusive_mode = false;
 	bool use_start_dir = false;
 	bool verbose = false;
+	bool test_only = false;
 	char * block_match_string = "";
 	char * in_file = "*.nif";  //C_Templar_M_G_skirt
 	char * out_file = "niflyze.txt";
@@ -128,6 +129,11 @@ int main( int argc, char* argv[] ){
 		// Verbose mode
 		if ( strcmp(argv[i], "-v") == 0  ) {
 			verbose = true;
+		}
+
+		// Test Only mode (no file writing, but call asString anyway)
+		if ( strcmp(argv[i], "-t") == 0  ) {
+			test_only = true;
 		}
 
 		// Exclusive mode
@@ -336,36 +342,44 @@ int main( int argc, char* argv[] ){
 					count++;
 	
 					//--Output Analysis--//
-					if ( !block_match || HasBlockType( blocks, string(block_match_string) ) ) {
-						cout << "writing...";
-						if (exclusive_mode) {
-							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-							if ( blocks[i]->GetType().GetTypeName() == string(block_match_string) ) {
-								out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
-									<< blocks[i]->asString( verbose )
-									<< endl;
+					if ( !test_only ) {
+						if ( !block_match || HasBlockType( blocks, string(block_match_string) ) ) {
+							cout << "writing...";
+							if (exclusive_mode) {
+								for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+								if ( blocks[i]->GetType().GetTypeName() == string(block_match_string) ) {
+									out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
+										<< blocks[i]->asString( verbose )
+										<< endl;
+								}
+		
+								//IPixelData * pix_data = (IPixelData*)blocks[i]->QueryInterface( ID_PIXEL_DATA );
+								//if ( pix_data != NULL ) {
+								//	PixelFormat pf = pix_data->GetPixelFormat();
+								//	if ( pf == PX_FMT_RGB8 || pf == PX_FMT_RGBA8 ) {
+								//		cout << endl << "Texture found:  " << pix_data->GetWidth() << "x" << pix_data->GetHeight() << endl;
+								//		vector<Color4> colors = pix_data->GetColors();
+								//		cout << "Sending colors back to NiPixelData block." << endl;
+								//		pix_data->SetColors( colors, true );
+								//		cout << "Displaying NiPixelData block." << endl;
+								//		cout << blocks[i]->asString();
+								//		cin.get();
+								//	}
+								//}
 							}
-	
-							//IPixelData * pix_data = (IPixelData*)blocks[i]->QueryInterface( ID_PIXEL_DATA );
-							//if ( pix_data != NULL ) {
-							//	PixelFormat pf = pix_data->GetPixelFormat();
-							//	if ( pf == PX_FMT_RGB8 || pf == PX_FMT_RGBA8 ) {
-							//		cout << endl << "Texture found:  " << pix_data->GetWidth() << "x" << pix_data->GetHeight() << endl;
-							//		vector<Color4> colors = pix_data->GetColors();
-							//		cout << "Sending colors back to NiPixelData block." << endl;
-							//		pix_data->SetColors( colors, true );
-							//		cout << "Displaying NiPixelData block." << endl;
-							//		cout << blocks[i]->asString();
-							//		cin.get();
-							//	}
-							//}
+							} else {
+								for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+									out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
+										<< blocks[i]->asString( verbose )
+										<< endl;
+								}
+							}
 						}
-						} else {
-							for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-								out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
-									<< blocks[i]->asString( verbose )
-									<< endl;
-							}
+					} else {
+						//Test only mode.  Simply call asSring function on each block
+						cout << "testing...";
+						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+							blocks[i]->asString( verbose );
 						}
 					}
 				};
