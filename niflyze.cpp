@@ -33,6 +33,8 @@ POSSIBILITY OF SUCH DAMAGE. */
 
 #include "niflib.h"
 #include "obj/NiObject.h"
+using namespace Niflib;
+
 #include <iomanip>
 #include <iostream>
 #include <vector>
