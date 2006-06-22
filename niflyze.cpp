@@ -512,6 +512,7 @@ int main( int argc, char* argv[] ){
 	out.close();
 
 	cout << "Done!" << endl;
+	cout << "Objects in memory:  " << NiObject::NumObjectsInMemory() << endl;
 #ifdef _WIN32
 	DWORD end_time = GetTickCount();
 	float time_taken = float(end_time - start_time) / 1000.0f;
