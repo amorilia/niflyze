@@ -59,7 +59,7 @@ using namespace std;
 int main( int argc, char* argv[] );
 bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
-void PrintTree( blk_ref block, int indent, ostream & out );
+void PrintTree( NiObjectRef block, int indent, ostream & out );
 
 int main( int argc, char* argv[] ){
 	bool block_match = false;
@@ -526,7 +526,7 @@ int main( int argc, char* argv[] ){
 	return 1;
 }
 
-bool HasBlockType( vector<blk_ref> blocks, string const & block_type ) {
+bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type ) {
 	for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 		if ( blocks[i]->GetType().GetTypeName() == block_type )
 			return true;
