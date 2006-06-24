@@ -43,6 +43,8 @@ using namespace Niflib;
 
 //#define USE_NIFLIB_DLL
 //#define TEST_WRITE
+//#define TEST_INDIVIDUAL_CLONE
+//#define TEST_TREE_CLONE
 
 // _WIN32 will detect windows on most compilers
 #ifdef _WIN32
@@ -386,6 +388,42 @@ int main( int argc, char* argv[] ){
 					}
 				};
 				cout << "done" << endl;
+
+#ifdef TEST_WRITE
+				////Test Write Function
+				cout << endl << "Writing Nif File" << endl;
+				//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
+				string output_nif_file = "/tmp/TEST.NIF";
+				WriteNifTree( output_nif_file, blocks[0], ver );
+				blocks = ReadNifList( output_nif_file );
+				for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+					out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
+						<< blocks[i]->asString( verbose )
+						<< endl;
+				};
+				cin.get();
+#endif
+
+#ifdef TEST_INDIVIDUAL_CLONE
+				for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+					//Test Clone Function
+					cout << "==[Original | " << blocks[i]->GetIDString() << "]==" << endl << endl
+						 << blocks[i]->asString() << endl;
+					NiObjectRef clone = blocks[i]->Clone( ver );
+					cout << "==[Clone | " << clone->GetIDString() << "]==" << endl << endl
+						 << clone->asString() << endl;
+				}
+				cin.get();
+#endif
+
+#ifdef TEST_TREE_CLONE
+				//Try to clone the whole tree, assuming blocks[0] is the root
+				NiObjectRef clone_root = CloneNifTree( blocks[0], ver );
+				//Print out cloned tree
+				PrintTree( clone_root, 0,  cout );
+				cin.get();
+#endif
+
 			}
 			catch( exception & e ) {
 				cout << "Error: " << e.what() << endl;
@@ -395,29 +433,6 @@ int main( int argc, char* argv[] ){
 				cout << endl << "Unknown Exception." << endl;
 				return 0;
 			}
-
-#ifdef TEST_WRITE
-			////Test Write Function
-			cout << endl << "Writing Nif File" << endl;
-			//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
-			string output_nif_file = "/tmp/TEST.NIF";
-			WriteNifTree( output_nif_file, blocks[0], ver );
-			blocks = ReadNifList( output_nif_file );
-			for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-				out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
-					<< blocks[i]->asString( verbose )
-					<< endl;
-			};
-			cin.get();
-#endif
-
-			////Test Clone Function
-			//cout << "==[Original Block]==" << endl << endl
-			//	 << blocks[0]->asString() << endl;
-			//blk_ref clone = blocks[0]->Clone();
-			//cout << "==[Cloned Block]==" << endl << endl
-			//	 << clone->asString() << endl;
-			//clone = blk_ref();
 
 			//Clear out current file
 			blocks.clear();
