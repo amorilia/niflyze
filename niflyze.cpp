@@ -394,7 +394,7 @@ int main( int argc, char* argv[] ){
 				cout << endl << "Writing Nif File" << endl;
 				//string output_nif_file = "C:\\Documents and Settings\\Shon\\My Documents\\Visual Studio Projects\\Niflyze\\Release\\TEST.NIF";
 				string output_nif_file = "/tmp/TEST.NIF";
-				WriteNifTree( output_nif_file, blocks[0], ver );
+				WriteNifTree( output_nif_file, blocks[0], NifInfo(ver) );
 				blocks = ReadNifList( output_nif_file );
 				for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 					out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
