@@ -243,7 +243,7 @@ int main( int argc, char* argv[] ){
 			//--Open File--//
 			ifstream in( current_file.c_str(), ifstream::binary );
 
-			cout << "Reading "  << current_file << "...";
+			cout << "Reading "  << current_file;
 
 			vector< NiObjectRef > blocks;
 			NiObjectRef root;
@@ -254,10 +254,12 @@ int main( int argc, char* argv[] ){
 				//PrintTree( root, 0, out );
 				//out << endl;
 
-				ver = CheckNifHeader( current_file );
-				if ( ver == VER_UNSUPPORTED ) cout << "unsupported...";
+				ver = GetNifVersion( current_file );
+				cout << " (" << FormatVersionString(ver) << dec << ")...";
+				if ( IsSupportedVersion(ver) == false ) cout << "unsupported...";
 				else if ( ver == VER_INVALID ) cout << "invalid...";
 				else {
+					
 					blocks = ReadNifList( current_file );
  					//blocks.push_back( ReadNifTree( current_file ) );
 	
