@@ -428,7 +428,7 @@ int main( int argc, char* argv[] ){
 
 			}
 			catch( exception & e ) {
-				cout << "Error: " << e.what() << endl;
+				cout << endl << "Error: " << e.what() << endl;
 				return 0;
 			}
 			catch( ... ) {
