@@ -383,10 +383,10 @@ int main( int argc, char* argv[] ){
 						}
 					} else {
 						//Test only mode.  Simply call asSring function on each block
-						cout << "testing...";
-						for ( unsigned int i = 0; i < blocks.size(); ++i ) {
-							blocks[i]->asString( verbose );
-						}
+						//cout << "testing...";
+						//for ( unsigned int i = 0; i < blocks.size(); ++i ) {
+						//	blocks[i]->asString( verbose );
+						//}
 					}
 				};
 				cout << "done" << endl;
