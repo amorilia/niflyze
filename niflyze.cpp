@@ -40,6 +40,7 @@ using namespace Niflib;
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 //#define USE_NIFLIB_DLL
 //#define TEST_WRITE
@@ -49,6 +50,7 @@ using namespace Niflib;
 // _WIN32 will detect windows on most compilers
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#define endl "\r\n"
 #include "windows.h"
 #else
 #include <dirent.h>
@@ -62,6 +64,7 @@ int main( int argc, char* argv[] );
 bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
 void PrintTree( NiObjectRef block, int indent, ostream & out );
+string FixLineEnds( const string & in );
 
 int main( int argc, char* argv[] ){
 	bool block_match = false;
@@ -355,7 +358,7 @@ int main( int argc, char* argv[] ){
 								for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 								if ( blocks[i]->GetType().GetTypeName() == string(block_match_string) ) {
 									out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
-										<< blocks[i]->asString( verbose )
+										<< FixLineEnds( blocks[i]->asString( verbose ) )
 										<< endl;
 								}
 		
@@ -376,7 +379,7 @@ int main( int argc, char* argv[] ){
 							} else {
 								for ( unsigned int i = 0; i < blocks.size(); ++i ) {
 									out << "====[ " << current_file << " | " << blocks[i]->GetIDString() << " ]====" << endl
-										<< blocks[i]->asString( verbose )
+										<< FixLineEnds( blocks[i]->asString( verbose ) )
 										<< endl;
 								}
 							}
@@ -603,4 +606,23 @@ void PrintHelpInfo( ostream & out ) {
 		<< "   specified with the -b switch.  Normally the whole file that contians" << endl
 		<< "   the block is output." << endl
 		<< "   Example: -x" << endl;
+}
+
+string FixLineEnds( const string & in ) {
+#ifdef _WIN32
+	//Handle strange Windows line ends
+	stringstream ss;
+	for ( unsigned int j = 0; j < in.size(); ++j ) {
+		if ( in[j] == '\n' ) {
+			ss << endl;
+		} else {
+			ss << in[j];
+		}
+	}
+
+	return ss.str();
+#else
+	//Just return the string given
+	return in;
+#endif
 }
