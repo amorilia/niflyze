@@ -4,14 +4,16 @@ import time
 from distutils import sysconfig
 
 # where is niflib
-niflibpath = "../niflib/"
+nifliblib = "../niflib"
+niflibinclude = "../niflib/include"
 
 Help("""
 'scons' to build niflyze
 'scons -c' to clean
 
-Niflib is assumed to have been built in '%s'.
-"""%niflibpath)
+The Niflib library is assumed to be in '%s'.
+The Niflib includes are assumed to be in '%s'.
+"""%(nifliblib,niflibinclude))
 
 # detect platform
 if sys.platform == 'linux2' or sys.platform == 'linux-i386':
@@ -26,4 +28,4 @@ else:
 
 env = Environment(ENV = os.environ)
 
-env.Program('niflyze', 'niflyze.cpp', LIBS=['niflib'], LIBPATH=[ niflibpath ], CPPPATH=[ niflibpath ], CPPFLAGS = cppflags)
+env.Program('niflyze', 'niflyze.cpp', LIBS=['niflib'], LIBPATH=[ nifliblib ], CPPPATH=[ niflibinclude ], CPPFLAGS = cppflags)
