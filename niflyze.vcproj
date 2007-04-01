@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="Niflyze"
 	ProjectGUID="{DF1A125D-D60E-4DD2-9A3F-E45AB82A5596}"
+	RootNamespace="Niflyze"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -118,8 +119,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="0"
+				PreprocessorDefinitions="USE_NIFLIB_DLL;WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -136,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="niflib.lib"
+				AdditionalDependencies="niflib_dll.lib"
 				OutputFile="../bin/niflyze.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
