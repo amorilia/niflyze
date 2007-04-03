@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="niflib_debug.lib"
-				OutputFile="../bin/niflyze_debug.exe"
+				OutputFile="bin/niflyze_debug.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/Niflyze.pdb"
@@ -138,7 +138,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="niflib_dll.lib"
-				OutputFile="../bin/niflyze.exe"
+				OutputFile="bin/niflyze.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
