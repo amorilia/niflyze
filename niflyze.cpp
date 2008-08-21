@@ -65,6 +65,7 @@ bool HasBlockType( vector<NiObjectRef> blocks, string const & block_type );
 void PrintHelpInfo( ostream & out );
 void PrintTree( NiObjectRef block, int indent, ostream & out );
 string FixLineEnds( const string & in );
+void ParseVersionLimit( char* str, unsigned& version_begin, unsigned& version_end);
 
 int main( int argc, char* argv[] ){
 	bool block_match = false;
@@ -76,6 +77,8 @@ int main( int argc, char* argv[] ){
 	char * in_file = "*.nif";  //C_Templar_M_G_skirt
 	char * out_file = "niflyze.txt";
 	char * start_dir = ".";
+    unsigned version_begin=0;
+    unsigned version_end=-1;
 
 	////Temporary//
 	//start_dir = "C:\\Documents and Settings\\Shon\\My Documents\\Modding\\Morrowind\\Official Nifs";
@@ -133,6 +136,17 @@ int main( int argc, char* argv[] ){
 			}
 		}
 
+        // Limit Version
+        if ( strcmp(argv[i], "-l") == 0  ) {
+
+            //If not already on the last argument
+            if (i != argc - 1) {
+                //Move to next argument and record output file name
+                i++;
+                ParseVersionLimit(argv[i],version_begin,version_end);
+            }
+        }
+
 		// Verbose mode
 		if ( strcmp(argv[i], "-v") == 0  ) {
 			verbose = true;
@@ -149,7 +163,7 @@ int main( int argc, char* argv[] ){
 		}
 
 		// Help
-		if ( strcmp(argv[i], "-?") == 0  ) {
+		if ( strcmp(argv[i], "-?") == 0 || strcmp(argv[i], "-h") == 0 ) {
 			help_flag = true;
 		}
 	}	
@@ -250,7 +264,7 @@ int main( int argc, char* argv[] ){
 
 			vector< NiObjectRef > blocks;
 			NiObjectRef root;
-                        unsigned int ver;
+            unsigned int ver;
 			try {
 				////Show block tree
 				//root = ReadNifTree( current_file );
@@ -259,13 +273,15 @@ int main( int argc, char* argv[] ){
 
 				ver = GetNifVersion( current_file );
 				cout << " (" << FormatVersionString(ver) << dec << ")...";
-				if ( IsSupportedVersion(ver) == false ) cout << "unsupported...";
+
+                if ( (ver < version_begin) || (ver > version_end) ) cout << "skipped...";
+                else if ( IsSupportedVersion(ver) == false ) cout << "unsupported...";
 				else if ( ver == VER_INVALID ) cout << "invalid...";
 				else {
 					
-					blocks = ReadNifList( current_file );
+                    blocks = ReadNifList( current_file );
  					//blocks.push_back( ReadNifTree( current_file ) );
-	
+
 	
 					////Add files to the lists if they have that specific type of texture
 					//for ( unsigned int i = 0; i < blocks.size(); ++i ) {
@@ -605,7 +621,15 @@ void PrintHelpInfo( ostream & out ) {
 		<< "   Causes niflyze to output only the blocks that match the block type" << endl
 		<< "   specified with the -b switch.  Normally the whole file that contians" << endl
 		<< "   the block is output." << endl
-		<< "   Example: -x" << endl;
+		<< "   Example: -x" << endl << endl
+        << "-t [Test only]" << endl
+        << "   Just check if .nif file(s) are read and parseable." << endl
+        << "   Example: -t" << endl << endl
+        << "-l [Limit version]" << endl
+        << "   Process only files with matching version numbers." << endl
+        << "   Takes a hexadezimal span as parameter." << endl
+        << "   Example: -l 03010000-04000000" << endl
+        << "   Example: -l 0a000000-" << endl;
 }
 
 string FixLineEnds( const string & in ) {
@@ -625,4 +649,43 @@ string FixLineEnds( const string & in ) {
 	//Just return the string given
 	return in;
 #endif
+}
+
+
+#define HEXNUM(x) ((x)>='0'&&(x)<='9')?(x)-'0':(((x)>='a'&&(x)<='f')?(x)+10-'a':(((x)>='A'&&(x)<='F')?(x)+10-'A':-1))
+
+unsigned ParseHex(char*& hex)
+{
+    unsigned res = 0;
+
+    int r = HEXNUM(*hex);
+    while (r>=0)
+    {
+        res <<= 4;
+        res |=r;
+        ++hex;
+        r = HEXNUM(*hex);
+    } 
+    return res;
+}
+
+void ParseVersionLimit( char* str, unsigned& version_begin, unsigned& version_end)
+{
+    version_begin =0;
+    version_end = -1;
+
+    if (*str=='-')
+    {
+        version_end = ParseHex(++str);
+    }
+    else
+    {
+        version_begin = ParseHex(str);
+        if (*str!='-')  version_end = version_begin;
+        else
+        {
+            version_end = ParseHex(++str);
+            if (version_end==0) version_end = -1;
+        }
+    }
 }
