@@ -4,8 +4,8 @@ import time
 from distutils import sysconfig
 
 # where is niflib
-nifliblib = "../niflib"
-niflibinclude = "../niflib/include"
+nifliblib = "niflib"
+niflibinclude = "niflib/include"
 
 Help("""
 'scons' to build niflyze
